@@ -5,7 +5,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <Text style={styles.content}>Next Body</Text>
-      <Text>Heading1</Text>
+      <Text>Heading2</Text>
     </View>
   );
 }
