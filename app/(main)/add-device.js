@@ -1,76 +1,86 @@
 import {
-  View,
+  ScrollView,
   Text,
-  FlatList,
-  TouchableOpacity,
   TextInput,
+  TouchableOpacity,
   StyleSheet,
+  Alert,
 } from 'react-native';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useState } from 'react';
 import { router } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthContext } from '../../context/AuthContext';
-import DeviceCard from '../../components/DeviceCard';
 
-export default function DeviceScreen() {
-  const { user, setSelectedDevice, devices } = useContext(AuthContext);
-  const [search, setSearch] = useState('');
+export default function AddDeviceScreen() {
+  const { devices, setDevices } = useContext(AuthContext);
 
-  const filteredDevices = useMemo(() => {
-    return devices.filter((item) => {
-      const keyword = search.toLowerCase();
+  const [name, setName] = useState('');
+  const [sn, setSn] = useState('');
+  const [location, setLocation] = useState('');
 
-      return (
-        item.name?.toLowerCase().includes(keyword) ||
-        item.sn?.toLowerCase().includes(keyword) ||
-        item.location?.toLowerCase().includes(keyword)
-      );
-    });
-  }, [search, devices]);
+  const handleSave = () => {
+    if (!name || !sn || !location) {
+      Alert.alert('Peringatan', 'Nama, SN, dan lokasi harus diisi.');
+      return;
+    }
 
-  const handleSelectDevice = (device) => {
-    setSelectedDevice(device);
-    router.push('/(main)/overview');
+    const newDevice = {
+      id: Date.now(),
+      name,
+      sn,
+      location,
+      updatedAt: '2026-03-30 08:27:08 (UTC +07:00)',
+      productionToday: 0,
+      weather: '27°C',
+      production: 0,
+      grid: 0,
+      battery: 0,
+      upsLoad: 0,
+      load: 0,
+      status: 'On grid',
+      batteryVoltage: '0 V',
+      batteryCurrent: '0 A',
+      inverterVoltage: '0 V',
+      inverterCurrent: '0 A',
+      pvVoltage: '0 V',
+      pvCurrent: '0 A',
+      outputPower: '0 W',
+    };
+
+    setDevices([...devices, newDevice]);
+
+    Alert.alert('Berhasil', 'Device berhasil ditambahkan.');
+    router.push('/(main)/device');
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Device</Text>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Tambah Device</Text>
 
-        {user?.role === 'admin' && (
-          <TouchableOpacity onPress={() => router.push('/(main)/add-device')}>
-            <Text style={styles.addText}>＋</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      <View style={styles.searchBox}>
-        <TextInput
-          placeholder="Name/SN/PN"
-          placeholderTextColor="#9CA3AF"
-          value={search}
-          onChangeText={setSearch}
-          style={styles.searchInput}
-        />
-      </View>
-
-      <FlatList
-        data={filteredDevices}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <DeviceCard
-            device={item}
-            onPress={() => handleSelectDevice(item)}
-          />
-        )}
-        contentContainerStyle={{ paddingBottom: 24 }}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>Belum ada device.</Text>
-        }
+      <TextInput
+        style={styles.input}
+        placeholder="Nama device"
+        value={name}
+        onChangeText={setName}
       />
-    </SafeAreaView>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Serial Number"
+        value={sn}
+        onChangeText={setSn}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Lokasi"
+        value={location}
+        onChangeText={setLocation}
+      />
+
+      <TouchableOpacity style={styles.button} onPress={handleSave}>
+        <Text style={styles.buttonText}>Simpan Device</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
 
@@ -78,40 +88,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F9FAFB',
-    paddingHorizontal: 16,
-    paddingTop: 10,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    padding: 16,
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '700',
+    marginBottom: 20,
     color: '#111827',
   },
-  addText: {
-    fontSize: 32,
-    color: '#111827',
-  },
-  searchBox: {
-    marginTop: 14,
-    marginBottom: 16,
+  input: {
     backgroundColor: '#fff',
-    borderRadius: 20,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 14,
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    paddingHorizontal: 16,
   },
-  searchInput: {
-    height: 48,
+  button: {
+    backgroundColor: '#22C55E',
+    padding: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '700',
     fontSize: 16,
-  },
-  emptyText: {
-    textAlign: 'center',
-    color: '#6B7280',
-    marginTop: 24,
-    fontSize: 15,
   },
 });

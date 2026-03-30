@@ -33,13 +33,17 @@ export default function DeviceScreen() {
     router.push('/(main)/overview');
   };
 
+  const handleAddDevice = () => {
+    router.push('/(main)/add-device');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Device</Text>
 
         {user?.role === 'admin' && (
-          <TouchableOpacity onPress={() => router.push('/(main)/add-device')}>
+          <TouchableOpacity style={styles.addButton} onPress={handleAddDevice}>
             <Text style={styles.addText}>＋</Text>
           </TouchableOpacity>
         )}
@@ -91,9 +95,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#111827',
   },
+  addButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 22,
+  },
   addText: {
     fontSize: 32,
     color: '#111827',
+    lineHeight: 36,
   },
   searchBox: {
     marginTop: 14,
