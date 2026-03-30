@@ -1,0 +1,22 @@
+const router = require("express").Router();
+const auth = require("../middlewares/auth.middleware");
+const { updatePlant } = require("../services/plant.service");
+const { createPlant, assignUserToPlantByEmail } = require("../controllers/plant.controller");
+const { addDeviceToPlant } = require("../controllers/plant.controller");
+
+// update plant
+router.put("/:id", auth, async (req, res) => {
+  await updatePlant(req.params.id, req.body);
+  res.json({ status: "updated" });
+});
+
+// create plant
+router.post("/", auth, createPlant);
+
+// assign user to plant
+router.post("/assign-user", auth, assignUserToPlantByEmail);
+
+// assign device to plant
+router.post("/assign-device", auth, addDeviceToPlant);
+
+module.exports = router;
