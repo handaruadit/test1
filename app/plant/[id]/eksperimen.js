@@ -1,6 +1,11 @@
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Line, Text as SvgText, Rect } from 'react-native-svg';
+import {
+  getEksperimenParams,
+  getEksperimenChart,
+} from '@/services/eksperimenService';
 
 const screenWidth = Dimensions.get('window').width;
 const CHART_WIDTH = screenWidth - 48;
@@ -17,7 +22,7 @@ function ParameterCard({ title, value = '-', unit = 'kW' }) {
   );
 }
 
-function EmptyChart() {
+function EmptyChart({ chartData }) {
   const pad = { top: 12, right: 10, bottom: 28, left: 38 };
   const yTicks = [-2, 0, 2, 4, 6];
   const xTicks = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'];
@@ -115,13 +120,51 @@ function EmptyChart() {
       </Svg>
 
       <Text style={styles.chartNote}>
-        Area grafik ini disiapkan untuk data API dari server.
+        {chartData.length > 0
+          ? `Data grafik diterima: ${chartData.length} titik`
+          : 'Area grafik ini disiapkan untuk data API dari server.'}
       </Text>
     </View>
   );
 }
 
 export default function EksperimenScreen() {
+  const [params, setParams] = useState({
+    production: '-',
+    grid: '-',
+    battery: '-',
+    load: '-',
+    ups: '-',
+  });
+
+  const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const paramRes = await getEksperimenParams();
+        const chartRes = await getEksperimenChart();
+
+        setParams({
+          production: paramRes?.production ?? '-',
+          grid: paramRes?.grid ?? '-',
+          battery: paramRes?.battery ?? '-',
+          load: paramRes?.load ?? '-',
+          ups: paramRes?.ups ?? '-',
+        });
+
+        setChartData(chartRes ?? []);
+      } catch (error) {
+        console.log('Gagal ambil data eksperimen:', error.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -130,15 +173,21 @@ export default function EksperimenScreen() {
           Placeholder parameter dan grafik untuk integrasi API.
         </Text>
 
-        <View style={styles.paramGrid}>
-          <ParameterCard title="Production" />
-          <ParameterCard title="Grid" />
-          <ParameterCard title="Battery" />
-          <ParameterCard title="Load" />
-          <ParameterCard title="UPS" />
-        </View>
+        {loading ? (
+          <Text style={styles.loadingText}>Loading...</Text>
+        ) : (
+          <>
+            <View style={styles.paramGrid}>
+              <ParameterCard title="Production" value={params.production} />
+              <ParameterCard title="Grid" value={params.grid} />
+              <ParameterCard title="Battery" value={params.battery} />
+              <ParameterCard title="Load" value={params.load} />
+              <ParameterCard title="UPS" value={params.ups} />
+            </View>
 
-        <EmptyChart />
+            <EmptyChart chartData={chartData} />
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -167,6 +216,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B7280',
     marginBottom: 16,
+  },
+  loadingText: {
+    fontSize: 15,
+    color: '#6B7280',
   },
   paramGrid: {
     marginBottom: 16,
