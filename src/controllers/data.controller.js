@@ -9,7 +9,7 @@ const { checkDeviceAccess } = require("../services/data.service");
 
 const fetchDeviceData = async (req, res) => {
     try {
-        const { deviceId, category, type, limit, startDate, endDate } = req.query;
+        const { deviceId, category, limit, startDate, endDate } = req.query;
         
         if (!deviceId) {
             return res.status(400).json({
