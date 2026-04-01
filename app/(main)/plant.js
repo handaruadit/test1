@@ -9,8 +9,8 @@ import {
 import { useContext, useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AuthContext } from '../../context/AuthContext';
-import DeviceCard from '../../components/DeviceCard';
+import { AuthContext } from '@/context/AuthContext';
+import DeviceCard from '@/components/DeviceCard';
 
 export default function PlantScreen() {
   const { user, setSelectedDevice, devices } = useContext(AuthContext);

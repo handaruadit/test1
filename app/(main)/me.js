@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useContext } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from '@/context/AuthContext';
 
 export default function MeScreen() {
   const { user, logout } = useContext(AuthContext);

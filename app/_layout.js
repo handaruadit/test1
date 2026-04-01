@@ -6,7 +6,10 @@ export default function Layout() {
   return (
     <AuthProvider>
       <SafeAreaView style={{ flex: 1 }}>
-        <Stack screenOptions={{ headerShown: false, title: '', }} />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(main)" />
+          <Stack.Screen name="plant/[id]" />
+        </Stack>
       </SafeAreaView>
     </AuthProvider>
   );

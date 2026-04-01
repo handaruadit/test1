@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useContext, useState } from 'react';
 import { router } from 'expo-router';
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from '@/context/AuthContext';
 
 export default function AddDeviceScreen() {
   const { devices, setDevices } = useContext(AuthContext);
