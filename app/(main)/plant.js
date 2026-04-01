@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthContext } from '../../context/AuthContext';
 import DeviceCard from '../../components/DeviceCard';
 
-export default function DeviceScreen() {
+export default function PlantScreen() {
   const { user, setSelectedDevice, devices } = useContext(AuthContext);
   const [search, setSearch] = useState('');
 
@@ -30,7 +30,7 @@ export default function DeviceScreen() {
 
   const handleSelectDevice = (device) => {
     setSelectedDevice(device);
-    router.push('/(main)/overview');
+    router.push(`/plant/${device.id}/overview`);
   };
 
   const handleAddDevice = () => {
@@ -40,7 +40,7 @@ export default function DeviceScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Device</Text>
+        <Text style={styles.title}>Plant</Text>
 
         {user?.role === 'admin' && (
           <TouchableOpacity style={styles.addButton} onPress={handleAddDevice}>
@@ -51,7 +51,7 @@ export default function DeviceScreen() {
 
       <View style={styles.searchBox}>
         <TextInput
-          placeholder="Name/SN/PN"
+          placeholder="Cari nama plant / SN / lokasi"
           placeholderTextColor="#9CA3AF"
           value={search}
           onChangeText={setSearch}
@@ -71,7 +71,7 @@ export default function DeviceScreen() {
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>Belum ada device.</Text>
+          <Text style={styles.emptyText}>Belum ada plant.</Text>
         }
       />
     </SafeAreaView>

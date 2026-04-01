@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
+
 export default function MainLayout() {
   return (
     <Tabs
@@ -16,31 +17,21 @@ export default function MainLayout() {
       }}
     >
       <Tabs.Screen
-        name="overview"
+        name="plant"
         options={{
-          title: 'Overview',
+          title: 'Plant',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="clipboard-outline" size={size} color={color} />
+            <Ionicons name="business-outline" size={size} color={color} />
           ),
         }}
       />
 
       <Tabs.Screen
-        name="data"
+        name="me"
         options={{
-          title: 'Data',
+          title: 'Me',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="stats-chart-outline" size={size} color={color} />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="device"
-        options={{
-          title: 'Device',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="hardware-chip-outline" size={size} color={color} />
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />
@@ -60,7 +51,7 @@ export default function MainLayout() {
       />
 
       <Tabs.Screen
-        name="device/[id]"
+        name="plant/[id]"
         options={{
           href: null,
         }}

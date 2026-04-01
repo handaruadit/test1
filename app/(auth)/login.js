@@ -34,7 +34,7 @@ export default function Login() {
       await AsyncStorage.setItem('token', 'dummy-token');
       setUser(dummyUser);
 
-      router.replace('/');
+      router.replace('/(main)/plant');
     } catch (err) {
       console.log(err);
     } finally {

@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useContext } from 'react';
-import { AuthContext } from '../../context/AuthContext';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useContext } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { AuthContext } from "@/context/AuthContext";
 
 function DataBox({ title, value }) {
   return (
@@ -30,37 +30,33 @@ export default function DataScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
         <Text style={styles.name}>{selectedDevice.name}</Text>
-        <Text style={styles.info}>SN: {selectedDevice.sn || '-'}</Text>
-        <Text style={styles.info}>Location: {selectedDevice.location || '-'}</Text>
+        <Text style={styles.info}>SN: {selectedDevice.sn || "-"}</Text>
+        <Text style={styles.info}>
+          Location: {selectedDevice.location || "-"}
+        </Text>
 
         <View style={styles.grid}>
           <DataBox
             title="Battery Voltage"
-            value={selectedDevice.batteryVoltage || '-'}
+            value={selectedDevice.batteryVoltage || "-"}
           />
           <DataBox
             title="Battery Current"
-            value={selectedDevice.batteryCurrent || '-'}
+            value={selectedDevice.batteryCurrent || "-"}
           />
           <DataBox
             title="Inverter Voltage"
-            value={selectedDevice.inverterVoltage || '-'}
+            value={selectedDevice.inverterVoltage || "-"}
           />
           <DataBox
             title="Inverter Current"
-            value={selectedDevice.inverterCurrent || '-'}
+            value={selectedDevice.inverterCurrent || "-"}
           />
-          <DataBox
-            title="PV Voltage"
-            value={selectedDevice.pvVoltage || '-'}
-          />
-          <DataBox
-            title="PV Current"
-            value={selectedDevice.pvCurrent || '-'}
-          />
+          <DataBox title="PV Voltage" value={selectedDevice.pvVoltage || "-"} />
+          <DataBox title="PV Current" value={selectedDevice.pvCurrent || "-"} />
           <DataBox
             title="Output Power"
-            value={selectedDevice.outputPower || '-'}
+            value={selectedDevice.outputPower || "-"}
           />
         </View>
       </ScrollView>
@@ -71,36 +67,36 @@ export default function DataScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: "#F9FAFB",
     padding: 16,
   },
   emptyContainer: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#F9FAFB",
+    justifyContent: "center",
+    alignItems: "center",
     padding: 24,
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 8,
-    color: '#111827',
+    color: "#111827",
   },
   emptyText: {
-    textAlign: 'center',
-    color: '#6B7280',
+    textAlign: "center",
+    color: "#6B7280",
     fontSize: 15,
   },
   name: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 8,
-    color: '#111827',
+    color: "#111827",
   },
   info: {
     fontSize: 15,
-    color: '#6B7280',
+    color: "#6B7280",
     marginBottom: 4,
   },
   grid: {
@@ -108,20 +104,20 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   box: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: "#E5E7EB",
   },
   boxTitle: {
-    color: '#6B7280',
+    color: "#6B7280",
     fontSize: 14,
     marginBottom: 8,
   },
   boxValue: {
-    color: '#111827',
+    color: "#111827",
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });
