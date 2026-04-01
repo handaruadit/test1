@@ -3,7 +3,19 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function PlantDetailLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarLabelStyle: {
+          fontSize: 12,
+        },
+        tabBarStyle: {
+          height: 60,
+          paddingBottom: 6,
+          paddingTop: 6,
+        },
+      }}
+    >
       <Tabs.Screen
         name="overview"
         options={{
@@ -28,6 +40,15 @@ export default function PlantDetailLayout() {
           title: 'Perangkat',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="hardware-chip-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="eksperimen"
+        options={{
+          title: 'Eksperimen',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="flask-outline" size={size} color={color} />
           ),
         }}
       />
