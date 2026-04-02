@@ -36,8 +36,8 @@ const getDeviceData = async (filters) => {
     }
 
     // FILTER TYPE (SINGLE / MULTIPLE)
-    if (filters.type?.length) {
-        query = query.whereIn("type", filters.type);
+    if (filters.types?.length) {
+        query = query.whereIn("type", filters.types);
     }
 
     // FILTER RANGE HARI
@@ -52,7 +52,7 @@ const getDeviceData = async (filters) => {
     query = query.orderBy("created_at", "desc");
 
     // DEFAULT LIMIT
-    query = query.limit(filters.limit || 1);
+    query = query.limit(filters.limit || filters.types.length || 1);
 
     return await query;
 

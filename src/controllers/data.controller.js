@@ -11,17 +11,17 @@ const fetchDeviceData = async (req, res) => {
     try {
         const { deviceId, category, limit, startDate, endDate } = req.query;
         
+        const userId = req.user.userId;
+        const allowed = await checkDeviceAccess(userId, deviceId);
+        if (!allowed) {
+            return res.status(403).json({ message: "Access denied" });
+        }
+        
         if (!deviceId) {
             return res.status(400).json({
                 status: "error",
                 message: "deviceId is required",
             });
-        }
-        
-        const userId = req.user.userId;
-        const allowed = await checkDeviceAccess(userId, deviceId);
-        if (!allowed) {
-            return res.status(403).json({ message: "Access denied" });
         }
         
         const types = req.query.type
@@ -50,7 +50,8 @@ const fetchDeviceData = async (req, res) => {
             data,
         });
 
-    } catch (err) {res.status(500).json({ status: "error" });
+    } catch (err) {
+        res.status(500).json({ status: "error" });
     }
 };
 
@@ -91,7 +92,9 @@ const getDaily = async (req, res) => {
             status: "success",
             data,
         });
-    } catch (err) {res.status(500).json({ status: "error" });}
+    } catch (err) {
+        res.status(500).json({ status: "error" });
+    }
 };
 
 const getMonthly = async (req, res) => {
