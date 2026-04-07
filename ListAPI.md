@@ -29,7 +29,7 @@ body: JSON.stringify({
 
 *PLANT*
 CREATE PLANT
-api/plant/
+api/plant/create
 method: 'POST',
 headers: {
     'Content-Type': 'application/json',
@@ -76,10 +76,19 @@ body: JSON.stringify({
     role: role,
 }),
 
+GET PLANT
+api/plant/
+method: 'GET',
+headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': `Bearer ${token}`,
+}
+
 *DATA*
 DATA TERBARU
-api/data/?deviceId=BS26031001&category=grid&limit=10
-- deviceId (wajib)
+api/data/?plantId=1&category=grid&limit=10
+- plantId (wajib)
 
 - category (data_bms)
 - type (voltage, current, soc, cycle, alarm, cells_{1})
@@ -113,8 +122,8 @@ headers: {
 },
 
 DATA DAILY
-api/data/daily?deviceId=BS26031001&date=2026-03-15
-- deviceId (wajib)
+api/data/daily?plantId=1&date=2026-03-15
+- plantId (wajib)
 - date (wajib, YYYY-MM-DD)
 
 - category (data_bms)
@@ -143,9 +152,9 @@ headers: {
 },
 
 DATA MONTHLY
-api/data/daily?deviceId=BS26031001&month=2026-03
-- deviceId (wajib)
-- month (wajib, YYYY-MM)
+api/data/daily?plantId=1&date=2026-03
+- plantId (wajib)
+- date (wajib, YYYY-MM)
 
 - category (data_bms)
 - type (voltage, current, soc, cycle, alarm, cells_{1})
@@ -173,9 +182,9 @@ headers: {
 },
 
 DATA YEARLY
-api/data/daily?deviceId=BS26031001&year=2026
-- deviceId (wajib)
-- year (wajib, YYYY)
+api/data/daily?plantId=1&date=2026
+- plantId (wajib)
+- date (wajib, YYYY)
 
 - category (data_bms)
 - type (voltage, current, soc, cycle, alarm, cells_{1})
@@ -203,8 +212,8 @@ headers: {
 },
 
 DATA LIFETIME
-api/data/daily?deviceId=BS26031001
-- deviceId (wajib)
+api/data/daily?plantId=1
+- plantId (wajib)
 
 - category (data_bms)
 - type (voltage, current, soc, cycle, alarm, cells_{1})

@@ -51,7 +51,7 @@ const updatePlant = async (plantId, data) => {
 
 // CREATE PLANT
 const create = async (data, userId) => {
-  const [plant] = await db("plants")
+  const plant = await db("plants")
       .insert(data)
       .returning("*");
 

@@ -1,42 +1,45 @@
-const { getDeviceData } = require("../services/data.service");
-const { getDailyData } = require("../services/data.service");
-const { getMonthlyData } = require("../services/data.service");
-const { getYearlyData } = require("../services/data.service");
-const { getLifetimeData } = require("../services/data.service");
+const { 
+    getDeviceData, 
+    getDailyData, 
+    getMonthlyData, 
+    getYearlyData, 
+    getLifetimeData, 
+    checkDeviceAccess, 
+    getDeviceIdData } = require("../services/data.service");
 // const { formatByType } = require("../services/data.service");
-const { checkDeviceAccess } = require("../services/data.service");
-
 
 const fetchDeviceData = async (req, res) => {
     try {
-        const { deviceId, category, limit, startDate, endDate } = req.query;
-        
+        const { plantId, category, limit, startDate, endDate } = req.query;
         const userId = req.user.userId;
-        const allowed = await checkDeviceAccess(userId, deviceId);
-        if (!allowed) {
-            return res.status(403).json({ message: "Access denied" });
-        }
-        
-        if (!deviceId) {
+
+        if (!plantId) {
             return res.status(400).json({
                 status: "error",
-                message: "deviceId is required",
+                message: "plantId is required",
             });
         }
-        
-        const types = req.query.type
-        ? req.query.type.split(",")
-        : null;
+
+        const deviceIds = await getDeviceIdData(userId, plantId);
+        console.log("🔍 Device IDs:", deviceIds);
+
+        if (!deviceIds || deviceIds.length === 0) {
+            return res.status(404).json({
+                status: "error",
+                message: "No devices found for the specified plant",
+            });
+        }
+
+        const types = req.query.type ? req.query.type.split(",") : null;
 
         let start, end;
-
         if (startDate && endDate) {
             start = new Date(startDate);
             end = new Date(endDate);
         }
 
         const data = await getDeviceData({
-            deviceId,
+            deviceIds: deviceIds.map((d) => d.device_id),
             category,
             types,
             startDate: start,
@@ -51,38 +54,45 @@ const fetchDeviceData = async (req, res) => {
         });
 
     } catch (err) {
-        res.status(500).json({ status: "error" });
+        console.error("Error fetching device data:", err);
+        res.status(500).json({ 
+            status: "error", 
+            message: "Internal server error" 
+        });
     }
 };
 
 const getDaily = async (req, res) => {
     try {
-        const { deviceId, date, category } = req.query;
+        const { plantId, date, category } = req.query;
         const userId = req.user.userId;
-        const allowed = await checkDeviceAccess(userId, deviceId);
-        if (!allowed) {
-            return res.status(403).json({ message: "Access denied" });
-        }
-
-        if (!deviceId) {
-                return res.status(400).json({
-                    status: "error",
-                    message: "deviceId is required",
-                });
-        }
-        if (!date) {
+        if (!plantId) {
             return res.status(400).json({
                 status: "error",
-                message: "date is required",
+                message: "plantId is required",
             });
         }
 
-        const types = req.query.type
-            ? req.query.type.split(",")
-            : null;
+        const deviceIds = await getDeviceIdData(userId, plantId);
+
+        if (!deviceIds || deviceIds.length === 0) {
+            return res.status(404).json({
+                status: "error",
+                message: "No devices found for the specified plant",
+            });
+        }
+
+        if (!date) {
+            return res.status(400).json({
+                status: "error",
+                message: "date is required (Format: YYYY-MM-DD)",
+            });
+        }
+
+        const types = req.query.type ? req.query.type.split(",") : null;
 
         const data = await getDailyData({
-            deviceId,
+            deviceId: deviceIds.map((d) => d.device_id),
             date,
             category,
             types,
@@ -99,32 +109,36 @@ const getDaily = async (req, res) => {
 
 const getMonthly = async (req, res) => {
     try {
-        const { deviceId, month, category } = req.query;
+        const { plantId, date, category } = req.query;
         const userId = req.user.userId;
-        const allowed = await checkDeviceAccess(userId, deviceId);
-        if (!allowed) {
-            return res.status(403).json({ message: "Access denied" });
-        }
-        if (!deviceId) {
+        if (!plantId) {
             return res.status(400).json({
                 status: "error",
-                message: "deviceId is required",
-            });
-        }
-        if (!month) {
-            return res.status(400).json({
-                status: "error",
-                message: "month is required",
+                message: "plantId is required",
             });
         }
 
-        const types = req.query.type
-        ? req.query.type.split(",")
-        : null;
+        const deviceIds = await getDeviceIdData(userId, plantId);
+
+        if (!deviceIds || deviceIds.length === 0) {
+            return res.status(404).json({
+                status: "error",
+                message: "No devices found for the specified plant",
+            });
+        }
+
+        if (!date) {
+            return res.status(400).json({
+                status: "error",
+                message: "date is required (Format: YYYY-MM)",
+            });
+        }
+
+        const types = req.query.type ? req.query.type.split(",") : null;
 
         const data = await getMonthlyData({
-            deviceId,
-            month,
+            deviceId: deviceIds.map((d) => d.device_id),
+            month:date,
             category,
             types,
         });
@@ -143,32 +157,36 @@ const getMonthly = async (req, res) => {
 
 const getYearly = async (req, res) => {
     try {
-        const { deviceId, year, category } = req.query;
+        const { plantId, date, category } = req.query;
         const userId = req.user.userId;
-        const allowed = await checkDeviceAccess(userId, deviceId);
-        if (!allowed) {
-            return res.status(403).json({ message: "Access denied" });
-        }
-        if (!deviceId) {
+        if (!plantId) {
             return res.status(400).json({
                 status: "error",
-                message: "deviceId is required",
-            });
-        }
-        if (!year) {
-            return res.status(400).json({
-                status: "error",
-                message: "year is required",
+                message: "plantId is required",
             });
         }
 
-        const types = req.query.type
-        ? req.query.type.split(",")
-        : null;
+        const deviceIds = await getDeviceIdData(userId, plantId);
+
+        if (!deviceIds || deviceIds.length === 0) {
+            return res.status(404).json({
+                status: "error",
+                message: "No devices found for the specified plant",
+            });
+        }
+
+        if (!date) {
+            return res.status(400).json({
+                status: "error",
+                message: "date is required (Format: YYYY)",
+            });
+        }
+
+        const types = req.query.type ? req.query.type.split(",") : null;
 
         const data = await getYearlyData({
-            deviceId,
-            year,
+            deviceId: deviceIds.map((d) => d.device_id),
+            year: date,
             category,
             types,
         });
@@ -184,25 +202,28 @@ const getYearly = async (req, res) => {
 
 const getLifetime = async (req, res) => {
     try {
-        const { deviceId, category } = req.query;
+        const { plantId, category } = req.query;
         const userId = req.user.userId;
-        const allowed = await checkDeviceAccess(userId, deviceId);
-        if (!allowed) {
-            return res.status(403).json({ message: "Access denied" });
-        }
-        if (!deviceId) {
+        if (!plantId) {
             return res.status(400).json({
                 status: "error",
-                message: "deviceId is required",
+                message: "plantId is required",
             });
         }
 
-        const types = req.query.type
-        ? req.query.type.split(",")
-        : null;
+        const deviceIds = await getDeviceIdData(userId, plantId);
+
+        if (!deviceIds || deviceIds.length === 0) {
+            return res.status(404).json({
+                status: "error",
+                message: "No devices found for the specified plant",
+            });
+        }
+
+        const types = req.query.type ? req.query.type.split(",") : null;
 
         const data = await getLifetimeData({
-            deviceId,
+            deviceId: deviceIds.map((d) => d.device_id),
             category,
             types,
         });
@@ -215,6 +236,7 @@ const getLifetime = async (req, res) => {
         });
     } catch (err) {res.status(500).json({ status: "error" });}
 };
+
 
 module.exports = {
     fetchDeviceData,

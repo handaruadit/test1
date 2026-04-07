@@ -24,10 +24,11 @@ const saveDeviceData = async (data) => {
 const getDeviceData = async (filters) => {
   try {
     let query = db("device_data").select("*");
+    let countData = 1;
 
     // FILTER DEVICE_ID
-    if (filters.deviceId) {
-      query = query.where("device_id", filters.deviceId);
+    if (filters.deviceIds) {
+      query = query.whereIn("device_id", filters.deviceIds);
     }
 
     // FILTER KATEGORI
@@ -37,7 +38,8 @@ const getDeviceData = async (filters) => {
 
     // FILTER TYPE (SINGLE / MULTIPLE)
     if (filters.types?.length) {
-        query = query.whereIn("type", filters.types);
+      query = query.whereIn("type", filters.types);
+      countData = filters.types.length*filters.deviceIds.length;
     }
 
     // FILTER RANGE HARI
@@ -52,7 +54,7 @@ const getDeviceData = async (filters) => {
     query = query.orderBy("created_at", "desc");
 
     // DEFAULT LIMIT
-    query = query.limit(filters.limit || filters.types.length || 1);
+    query = query.limit(filters.limit || countData);
 
     return await query;
 
@@ -67,7 +69,7 @@ const getDailyData = async ({ deviceId, date, category, types }) => {
     const end = new Date(date + "T23:59:59");
 
     let query = db("device_data")
-        .where("device_id", deviceId)
+        .whereIn("device_id", deviceId)
         .whereBetween("created_at", [start, end]);
 
     if (category) {
@@ -85,14 +87,17 @@ const getDailyData = async ({ deviceId, date, category, types }) => {
 const getMonthlyData = async ({ deviceId, month, category, types }) => {
     const start = `${month}-01`;
     const end = `${month}-31`;
-
+    
     let query = db("device_data")
         .select(
             db.raw("TO_CHAR(created_at, 'YYYY-MM-DD') as date"),
             "category",
             "type",
-            db.raw("SUM(value::numeric) as total")
-        ).where("device_id", deviceId)
+            db.raw("SUM(value::numeric) as sum"),
+            db.raw("ROUND(AVG(value::numeric), 2) as avg"), 
+            db.raw("MAX(value::numeric) as max"), 
+            db.raw("MIN(value::numeric) as min")
+        ).whereIn("device_id", deviceId)
         .whereBetween("created_at", [start, end]);
 
     if (category) {
@@ -118,8 +123,11 @@ const getYearlyData = async ({ deviceId, year, category, types }) => {
             db.raw("TO_CHAR(created_at, 'YYYY-MM') as month"),
             "category",
             "type",
-            db.raw("SUM(value::numeric) as total")
-        ).where("device_id", deviceId)
+            db.raw("SUM(value::numeric) as sum"),
+            db.raw("ROUND(AVG(value::numeric), 2) as avg"), 
+            db.raw("MAX(value::numeric) as max"), 
+            db.raw("MIN(value::numeric) as min")
+        ).whereIn("device_id", deviceId)
         .whereBetween("created_at", [start, end]);
 
     if (category) {
@@ -142,8 +150,11 @@ const getLifetimeData = async ({ deviceId, category, types }) => {
             db.raw("TO_CHAR(created_at, 'YYYY') as year"),
             "category",
             "type",
-            db.raw("SUM(value::numeric) as total")
-        ).where("device_id", deviceId);
+            db.raw("SUM(value::numeric) as sum"),
+            db.raw("ROUND(AVG(value::numeric), 2) as avg"), 
+            db.raw("MAX(value::numeric) as max"), 
+            db.raw("MIN(value::numeric) as min")
+        ).whereIn("device_id", deviceId);
 
     if (category) {
         query = query.where("category", category);
@@ -176,6 +187,7 @@ const getLifetimeData = async ({ deviceId, category, types }) => {
 // };
 
 // CHECK DEVICE → PLANT → USER
+
 const checkDeviceAccess = async (userId, deviceId) => {
   const data = await db("plant_devices as pd")
     .join("user_plants as up", "pd.plant_id", "up.plant_id")
@@ -184,6 +196,29 @@ const checkDeviceAccess = async (userId, deviceId) => {
     .first();
 
   return !!data;
+};
+const getDeviceIdData = async (userId, plantId) => {
+  const devices = await db("plant_devices")
+    .where("plant_id", plantId)
+    .select("device_id");
+  
+  if (devices.length === 0) {
+    throw new Error("Data_Not_Found");
+  }
+
+  const allowedDevices = [];
+  for (const item of devices) {
+    const isAllowed = await checkDeviceAccess(userId, item.device_id);
+    if (isAllowed) {
+      allowedDevices.push(item);
+    }
+  }
+
+  if (allowedDevices.length === 0) {
+     throw new Error("Access_Denied"); 
+  }
+
+  return allowedDevices;
 };
 
 module.exports = {
@@ -195,4 +230,5 @@ module.exports = {
     getLifetimeData,
     // formatByType,
     checkDeviceAccess,
+    getDeviceIdData,
 };

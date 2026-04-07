@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
-const { fetchDeviceData } = require("../controllers/data.controller");
-const { getDaily } = require("../controllers/data.controller");
-const { getMonthly } = require("../controllers/data.controller");
-const { getYearly } = require("../controllers/data.controller");
-const { getLifetime } = require("../controllers/data.controller");
+const { 
+    fetchDeviceData, 
+    getDaily, 
+    getMonthly, 
+    getYearly, 
+    getLifetime
+ } = require("../controllers/data.controller");
 
 // GET data endpoint
 router.get("/", auth, fetchDeviceData);
