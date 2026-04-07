@@ -1,17 +1,19 @@
-import { useContext, useMemo, useState } from "react";
+import PowerFlowDiagram from "@/components/PowerFlowDiagram";
+import { AuthContext } from "@/context/AuthContext";
+import { useLocalSearchParams } from 'expo-router';
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
+  Alert,
+  Dimensions,
   ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, { Path, Line, Text as SvgText } from "react-native-svg";
-import PowerFlowDiagram from "@/components/PowerFlowDiagram";
-import { AuthContext } from "@/context/AuthContext";
+import Svg, { Line, Path, Text as SvgText } from "react-native-svg";
 
 const screenWidth = Dimensions.get("window").width;
 const CHART_WIDTH = screenWidth - 60;
@@ -243,20 +245,55 @@ function DailyOverviewChart({ series }) {
 export default function OverviewScreen() {
   const { selectedDevice } = useContext(AuthContext);
   const [activeSegment, setActiveSegment] = useState("day");
+  const [fetchedData, setFetchedData] = useState(null);
   const dailySeries = useMemo(() => generateDailySeries(), []);
+  const { id } = useLocalSearchParams();
+  const plantId = id || 1; // Default to 1 if no id
+
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3MDUyYmI1MS1lNGMyLTQwNGMtYmNiNC04MWFmMDJlMTYxMGUiLCJpYXQiOjE3NzUwMzY0MDcsImV4cCI6MTc3NTY0MTIwN30.aERX8Mw2BdAEc0lzEmll7QAt7CmUVccVm3TjGoWxJec";
+  
+  if (!token) {
+    Alert.alert('Error', 'Sesi Anda telah habis, silakan login kembali.');
+    return;
+  }
+
+  const BASE_URL = 'http://localhost:3000';
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const endpoint = `${BASE_URL}/api/data/device-id?plantId=${plantId}`;
+        const response = await fetch(endpoint, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        const jsonResponse = await response.json();
+        console.log("API Response:", jsonResponse.data);
+        setFetchedData(jsonResponse);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        Alert.alert('Error', 'Failed to fetch data from API.');
+      }
+    };
+    fetchData();
+  }, [plantId]);
 
   const plantData = {
-    plantName: selectedDevice?.name || "No Device Selected",
-    productionToday: selectedDevice?.productionToday || 0,
-    weather: selectedDevice?.weather || "27°C",
-    address: selectedDevice?.location || "-",
-    updatedAt: selectedDevice?.updatedAt || "-",
-    production: selectedDevice?.production || 0,
-    grid: selectedDevice?.grid || 0,
-    battery: selectedDevice?.battery || 0,
-    upsLoad: selectedDevice?.upsLoad || 0,
-    load: selectedDevice?.load || 0,
-    status: selectedDevice?.status || "-",
+    plantName: fetchedData?.name || selectedDevice?.name || "No Device Selected",
+    productionToday: fetchedData?.productionToday || selectedDevice?.productionToday || 0,
+    weather: fetchedData?.weather || selectedDevice?.weather || "27°C",
+    address: fetchedData?.location || selectedDevice?.location || "-",
+    updatedAt: fetchedData?.updatedAt || selectedDevice?.updatedAt || "-",
+    production: fetchedData?.production || selectedDevice?.production || 0,
+    grid: fetchedData?.grid || selectedDevice?.grid || 0,
+    battery: fetchedData?.battery || selectedDevice?.battery || 0,
+    upsLoad: fetchedData?.upsLoad || selectedDevice?.upsLoad || 0,
+    load: fetchedData?.load || selectedDevice?.load || 0,
+    status: fetchedData?.status || selectedDevice?.status || "-",
   };
 
   return (

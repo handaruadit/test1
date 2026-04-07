@@ -1,36 +1,70 @@
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
-import { useContext, useMemo, useState } from 'react';
-import { router } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AuthContext } from '@/context/AuthContext';
 import DeviceCard from '@/components/DeviceCard';
+import { AuthContext } from '@/context/AuthContext';
+import { router } from 'expo-router';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function PlantScreen() {
-  const { user, setSelectedDevice, devices } = useContext(AuthContext);
+  const { user, setSelectedDevice } = useContext(AuthContext);
   const [search, setSearch] = useState('');
+  const [plantList, setPlantList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSensorData();
+  }, []);
+
+  const fetchSensorData = async () => {
+    try {
+      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3MDUyYmI1MS1lNGMyLTQwNGMtYmNiNC04MWFmMDJlMTYxMGUiLCJpYXQiOjE3NzUwMzY0MDcsImV4cCI6MTc3NTY0MTIwN30.aERX8Mw2BdAEc0lzEmll7QAt7CmUVccVm3TjGoWxJec";
+      if (!token) {
+        Alert.alert('Error', 'Sesi Anda telah habis, silakan login kembali.');
+        setIsLoading(false);
+        return;
+      }
+
+      const BASE_URL = 'http://localhost:3000';
+      const endpoint = `${BASE_URL}/api/plant/`;
+
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Otentikasi masuk di sini
+        },
+      });
+
+      const jsonResponse = await response.json();
+      if (response.ok) {
+        setPlantList(jsonResponse.data);
+      } else {
+        Alert.alert('Gagal', jsonResponse.message || 'Gagal mengambil data perangkat');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Terjadi masalah jaringan atau server mati.');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredDevices = useMemo(() => {
-    return devices.filter((item) => {
+    return plantList.filter((item) => {
       const keyword = search.toLowerCase();
 
       return (
         item.name?.toLowerCase().includes(keyword) ||
-        item.sn?.toLowerCase().includes(keyword) ||
+        item.system_type?.toLowerCase().includes(keyword) ||
         item.location?.toLowerCase().includes(keyword)
       );
     });
-  }, [search, devices]);
+  }, [search, plantList]);
 
   const handleSelectDevice = (device) => {
     setSelectedDevice(device);
-    router.push(`/plant/${device.id}/overview`);
+    router.push(`/plant/${device.name}/overview`);
   };
 
   const handleAddDevice = () => {
