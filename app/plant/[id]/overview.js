@@ -1,17 +1,17 @@
+import PowerFlowDiagram from "@/components/PowerFlowDiagram";
+import { AuthContext } from "@/context/AuthContext";
 import { useContext, useMemo, useState } from "react";
 import {
+  Dimensions,
   ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, { Path, Line, Text as SvgText } from "react-native-svg";
-import PowerFlowDiagram from "@/components/PowerFlowDiagram";
-import { AuthContext } from "@/context/AuthContext";
+import Svg, { Line, Path, Text as SvgText } from "react-native-svg";
 
 const screenWidth = Dimensions.get("window").width;
 const CHART_WIDTH = screenWidth - 60;
@@ -259,6 +259,7 @@ export default function OverviewScreen() {
     status: selectedDevice?.status || "-",
   };
 
+  
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
