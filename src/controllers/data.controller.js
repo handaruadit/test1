@@ -47,10 +47,19 @@ const fetchDeviceData = async (req, res) => {
             limit: limit ? parseInt(limit) : undefined,
         });
 
+        const formatted = data.reduce((accumulator, currentItem) => {
+            const cat = currentItem.category;
+            if (!accumulator[cat]) {
+                accumulator[cat] = {};
+            }
+            accumulator[cat][currentItem.type] = currentItem;
+            return accumulator;
+        }, {});
+
         res.json({
             status: "success",
             count: data.length,
-            data,
+            data: formatted,
         });
 
     } catch (err) {
@@ -96,11 +105,20 @@ const getDaily = async (req, res) => {
             date,
             category,
             types,
-            });
+        });
+
+        const formatted = data.reduce((accumulator, currentItem) => {
+            const cat = currentItem.category;
+            if (!accumulator[cat]) {
+                accumulator[cat] = {};
+            }
+            accumulator[cat][currentItem.type] = currentItem;
+            return accumulator;
+        }, {});
 
         res.json({
             status: "success",
-            data,
+            data: formatted,
         });
     } catch (err) {
         res.status(500).json({ status: "error" });
@@ -143,11 +161,18 @@ const getMonthly = async (req, res) => {
             types,
         });
 
-        // const formatted = formatByType(data, "date");
+        const formatted = data.reduce((accumulator, currentItem) => {
+            const cat = currentItem.category;
+            if (!accumulator[cat]) {
+                accumulator[cat] = {};
+            }
+            accumulator[cat][currentItem.type] = currentItem;
+            return accumulator;
+        }, {});
 
         res.json({
             status: "success",
-            data,
+            data: formatted,
         });
 
     } catch (err) {
@@ -191,11 +216,18 @@ const getYearly = async (req, res) => {
             types,
         });
 
-        // const formatted = formatByType(data, "date");
+        const formatted = data.reduce((accumulator, currentItem) => {
+            const cat = currentItem.category;
+            if (!accumulator[cat]) {
+                accumulator[cat] = {};
+            }
+            accumulator[cat][currentItem.type] = currentItem;
+            return accumulator;
+        }, {});
 
         res.json({
             status: "success",
-            data,
+            data: formatted,
         });
     } catch (err) {res.status(500).json({ status: err.message });}
 };
