@@ -24,7 +24,7 @@ const assignUserToPlant = async (email, plantId, role = "viewer") => {
     .first();
 
   if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    throw new Error("User not found");
   }
   
   return await db("user_plants").insert({

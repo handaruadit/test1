@@ -3,6 +3,16 @@ const bcrypt = require("bcrypt");
 const { generateToken } = require("../config/jwt");
 
 const registerUser = async ({ email, password, phone }) => {
+  const existingUser = await db("users").where({ email }).first();
+  if (existingUser) {
+    throw new Error("Email already registered");
+  }
+
+  const existingPhone = await db("users").where({ phone }).first();
+  if (existingPhone) {
+    throw new Error("Phone already registered");
+  }
+
   const hashed = await bcrypt.hash(password, 10);
 
   const [user] = await db("users")

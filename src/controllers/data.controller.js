@@ -4,7 +4,6 @@ const {
     getMonthlyData, 
     getYearlyData, 
     getLifetimeData, 
-    checkDeviceAccess, 
     getDeviceIdData } = require("../services/data.service");
 // const { formatByType } = require("../services/data.service");
 

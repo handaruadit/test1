@@ -188,15 +188,6 @@ const getLifetimeData = async ({ deviceId, category, types }) => {
 
 // CHECK DEVICE → PLANT → USER
 
-const checkDeviceAccess = async (userId, deviceId) => {
-  const data = await db("plant_devices as pd")
-    .join("user_plants as up", "pd.plant_id", "up.plant_id")
-    .where("pd.device_id", deviceId)
-    .where("up.user_id", userId)
-    .first();
-
-  return !!data;
-};
 const getDeviceIdData = async (userId, plantId) => {
   const devices = await db("plant_devices")
     .where("plant_id", plantId)
@@ -229,6 +220,5 @@ module.exports = {
     getYearlyData,
     getLifetimeData,
     // formatByType,
-    checkDeviceAccess,
     getDeviceIdData,
 };
