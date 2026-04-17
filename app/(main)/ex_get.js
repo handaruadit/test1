@@ -1,0 +1,140 @@
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, View } from 'react-native';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const DataScreen = () => {
+  // State untuk menampung data yang bentuknya array/daftar (karena limit=10)
+  const [dataList, setDataList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSensorData();
+  }, []);
+
+  const fetchSensorData = async () => {
+    try {
+      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3MDUyYmI1MS1lNGMyLTQwNGMtYmNiNC04MWFmMDJlMTYxMGUiLCJpYXQiOjE3NzUwMzY0MDcsImV4cCI6MTc3NTY0MTIwN30.aERX8Mw2BdAEc0lzEmll7QAt7CmUVccVm3TjGoWxJec";
+
+      if (!token) {
+        Alert.alert('Error', 'Sesi Anda telah habis, silakan login kembali.');
+        setIsLoading(false);
+        return;
+      }
+
+      const BASE_URL = 'http://localhost:3000';
+      const deviceId = 'BS26040001';
+    //   const category = 'grid';
+      const limit = 10;
+
+      // Rangkai URL menggunakan Template Literals (tanda backtick `)
+      const endpoint = `${BASE_URL}/api/data/?deviceId=${deviceId}&limit=${limit}`;
+
+      // 3. Tembak API dengan metode GET dan sertakan Bearer Token
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Otentikasi masuk di sini
+        },
+      });
+
+      const jsonResponse = await response.json();
+
+      if (response.ok) {
+        // Asumsi data dari API bentuknya: { status: "success", data: [...] }
+        // Sesuaikan 'jsonResponse.data' dengan struktur asli API Anda
+        setDataList(jsonResponse.data);
+      } else {
+        Alert.alert('Gagal', jsonResponse.message || 'Gagal mengambil data perangkat');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Terjadi masalah jaringan atau server Ngrok mati.');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Desain komponen untuk setiap baris data (item)
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <Text style={styles.titleText}>Device: {item.deviceId}</Text>
+      {/* Ganti item.value atau item.timestamp sesuai dengan nama kolom di database Anda */}
+      <Text style={styles.text}>Kategori: {item.category}</Text>
+      <Text style={styles.text}>Tipe: {item.type || 'N/A'}</Text>
+      <Text style={styles.text}>Nilai: {item.value || 'N/A'}</Text> 
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Data Perangkat Grid</Text>
+      
+      {isLoading ? (
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text style={{ marginTop: 10 }}>Memuat data perangkat...</Text>
+        </View>
+      ) : (
+        // FlatList sangat optimal untuk merender data berulang secara performa
+        <FlatList
+          data={dataList}
+          keyExtractor={(item, index) => index.toString()} // Gunakan ID unik jika API menyediakannya (misal: item.id)
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          // Tampilan jika data dari API ternyata kosong
+          ListEmptyComponent={<Text style={styles.emptyText}>Tidak ada data ditemukan.</Text>}
+        />
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: '#f5f5f5',
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
+    color: '#333',
+  },
+  card: {
+    backgroundColor: '#fff',
+    padding: 15,
+    marginBottom: 10,
+    borderRadius: 8,
+    elevation: 2, // Bayangan untuk Android
+    shadowColor: '#000', // Bayangan untuk iOS
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+  },
+  titleText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  text: {
+    fontSize: 14,
+    color: '#555',
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: '#888',
+  },
+});
+
+export default DataScreen;
